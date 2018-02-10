@@ -1,5 +1,8 @@
 package ca.polymtl.inf8480.tp1.server;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -43,10 +46,30 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public void createClientID() throws RemoteException {}
+	public void createClientID() throws RemoteException {
+		// 
+	}
 	
 	@Override
-	public void create(String nom) throws RemoteException {}
+	public void create(String nom) throws RemoteException {
+		
+		try {
+
+			File f = new File(nom);
+			
+			/*
+			 * Cette fonction retourne false si le fichier existe déjà.
+			 * L'opération est dite atomique du point de vue des systèmes de fichiers.
+			 */
+			boolean fileCreated = f.createNewFile();
+
+			if(!fileCreated) {
+				throw new RemoteException("Le fichier " + nom + " existe déjà");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public String[] list() throws RemoteException {return new String [0];}
@@ -62,4 +85,16 @@ public class Server implements ServerInterface {
 
 	@Override
 	public SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException {return new SyncedFile("");}
+	
+	private boolean createFile(String filename) 
+	{
+
+
+		return fileCreated;
+	}
+	
+	private boolean fileExists(String filename)
+	{
+		
+	}
 }
