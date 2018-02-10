@@ -30,19 +30,28 @@ public class Client {
 	}
 
 	private ServerInterface distantServerStub = null;
+	private ServerInterface localServerStub = null;
+	private static final boolean USE_DISTANT_SERVER = false;
 
 	public Client(String distantServerHostname) {
 		super();
-
-		if (distantServerHostname != null) {
-			distantServerStub = loadServerStub(distantServerHostname);
-			System.out.println("called loadServerStub with hostname " + distantServerHostname);
+		if( USE_DISTANT_SERVER ){
+			if (distantServerHostname != null) {
+				distantServerStub = loadServerStub(distantServerHostname);
+				System.out.println("called loadServerStub with hostname " + distantServerHostname);
+			}
 		}
+
+		localServerStub = loadServerStub("127.0.0.1");
 	}
 	
 	public void runTests() {
+		testCreate(localServerStub);
+	}
+
+	public void testCreate(ServerInterface si){
 		try {
-			distantServerStub.create("fichier_test");
+			si.create("fichier_test");
 		} catch (RemoteException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
