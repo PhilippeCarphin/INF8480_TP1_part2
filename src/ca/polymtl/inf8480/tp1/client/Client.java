@@ -36,6 +36,7 @@ public class Client {
 
 		if (distantServerHostname != null) {
 			distantServerStub = loadServerStub(distantServerHostname);
+			System.out.println("called loadServerStub with hostname " + distantServerHostname);
 		}
 	}
 	
