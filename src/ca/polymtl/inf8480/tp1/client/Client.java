@@ -53,6 +53,8 @@ public class Client {
 		ServerInterface stub = null;
 
 		try {
+			System.out.println("Calling LocateRegistry.getRegistry("
+				+ hostname + ")");
 			Registry registry = LocateRegistry.getRegistry(hostname);
 			stub = (ServerInterface) registry.lookup("server");
 		} catch (NotBoundException e) {
