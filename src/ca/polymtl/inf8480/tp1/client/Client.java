@@ -25,6 +25,8 @@ public class Client {
 		}
 
 		Client client = new Client(distantHostname);
+		client.runTests();
+		
 	}
 
 	private ServerInterface distantServerStub = null;
@@ -34,6 +36,15 @@ public class Client {
 
 		if (distantServerHostname != null) {
 			distantServerStub = loadServerStub(distantServerHostname);
+		}
+	}
+	
+	public void runTests() {
+		try {
+			distantServerStub.create("fichier_test");
+		} catch (RemoteException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
