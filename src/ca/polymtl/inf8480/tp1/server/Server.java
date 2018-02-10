@@ -58,13 +58,13 @@ public class Server implements ServerInterface {
 			File f = new File(nom);
 			
 			/*
-			 * Cette fonction retourne false si le fichier existe déjà.
-			 * L'opération est dite atomique du point de vue des systèmes de fichiers.
+			 * Cette fonction retourne false si le fichier existe deja.
+			 * L'operation est dite atomique du point de vue des systemes de fichiers.
 			 */
 			boolean fileCreated = f.createNewFile();
 
 			if(!fileCreated) {
-				throw new RemoteException("Le fichier " + nom + " existe déjà");
+				throw new RemoteException("Le fichier " + nom + " existe deja");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,16 +85,4 @@ public class Server implements ServerInterface {
 
 	@Override
 	public SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException {return new SyncedFile("");}
-	
-	private boolean createFile(String filename) 
-	{
-
-
-		return fileCreated;
-	}
-	
-	private boolean fileExists(String filename)
-	{
-		
-	}
 }
