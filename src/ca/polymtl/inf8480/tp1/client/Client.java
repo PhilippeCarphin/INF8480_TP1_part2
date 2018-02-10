@@ -25,15 +25,36 @@ public class Client {
 		}
 
 		Client client = new Client(distantHostname);
+		client.runTests();
+		
 	}
 
 	private ServerInterface distantServerStub = null;
+	private ServerInterface localServerStub = null;
+	private static final boolean USE_DISTANT_SERVER = false;
 
 	public Client(String distantServerHostname) {
 		super();
+		if( USE_DISTANT_SERVER ){
+			if (distantServerHostname != null) {
+				distantServerStub = loadServerStub(distantServerHostname);
+				System.out.println("called loadServerStub with hostname " + distantServerHostname);
+			}
+		}
 
-		if (distantServerHostname != null) {
-			distantServerStub = loadServerStub(distantServerHostname);
+		localServerStub = loadServerStub("127.0.0.1");
+	}
+	
+	public void runTests() {
+		testCreate(localServerStub);
+	}
+
+	public void testCreate(ServerInterface si){
+		try {
+			si.create("fichier_test");
+		} catch (RemoteException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -41,6 +62,8 @@ public class Client {
 		ServerInterface stub = null;
 
 		try {
+			System.out.println("Calling LocateRegistry.getRegistry("
+				+ hostname + ")");
 			Registry registry = LocateRegistry.getRegistry(hostname);
 			stub = (ServerInterface) registry.lookup("server");
 		} catch (NotBoundException e) {
