@@ -12,7 +12,7 @@ public class Client {
 
 	public static void main(String[] args) {
 		String distantHostname = null;
-		/*Le deuxième argument sert à faire des test de l'impact de la longueur sur le temps d'appel*/
+		/*Le deuxieme argument sert a aire des test de l'impact de la longueur sur le temps d'appel*/
 
 		if (args.length > 0)
 		{
@@ -56,7 +56,7 @@ public class Client {
 			stub = (ServerInterface) registry.lookup("server");
 		} catch (NotBoundException e) {
 			System.out.println("Erreur: Le nom '" + e.getMessage()
-					+ "' n'est pas défini dans le registre.");
+					+ "' n'est pas defini dans le registre.");
 		} catch (AccessException e) {
 			System.out.println("Erreur: " + e.getMessage());
 		} catch (RemoteException e) {
