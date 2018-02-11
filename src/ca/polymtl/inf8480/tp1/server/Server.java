@@ -19,8 +19,27 @@ public class Server implements ServerInterface {
 		server.run();
 	}
 
+	private static String FS_ROOT = "ajpcfs"; // Yet another new file system made by Alexandre Jouy and Philippe Carphin
+	private static String FILE_STORE = FS_ROOT + "/" + "files";
+	private static String LOCK_FILES = FS_ROOT + "/" + "lock";
+
+	private File fileStore = null;
+	private File lockFiles = null;
+
+	private void createDirectories(){
+		fileStore.getParentFile().mkdir();
+		fileStore.mkdir();
+		lockFiles.getParentFile().mkdir();
+		lockFiles.mkdir();
+	}
+
 	public Server() {
 		super();
+
+		fileStore = new File(FILE_STORE);
+		lockFiles = new File(LOCK_FILES);
+
+		createDirectories();
 	}
 
 	private void run() {
