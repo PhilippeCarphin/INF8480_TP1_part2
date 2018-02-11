@@ -7,6 +7,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
+import ca.polymtl.inf8480.tp1.shared.Response;
 
 public class Client {
 
@@ -77,11 +78,13 @@ public class Client {
 
 	private void runCreate()
 	{
+		Response resp = null;
 		try {
-			serverStub.create(argument);
+			resp = serverStub.create(argument);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+		System.out.println(resp.message);
 	}
 
 	private ServerInterface loadServerStub(String hostname) {

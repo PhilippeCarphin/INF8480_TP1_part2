@@ -11,6 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.SyncedFile;
+import ca.polymtl.inf8480.tp1.shared.Response;
 
 public class Server implements ServerInterface {
 
@@ -70,8 +71,9 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public void create(String nom) throws RemoteException {
+	public Response create(String nom) throws RemoteException {
 
+		Response resp = new Response();
 		try {
 
 			File f = new File(FILE_STORE + "/" + nom);
@@ -81,13 +83,17 @@ public class Server implements ServerInterface {
 			 * L'operation est dite atomique du point de vue des systemes de fichiers.
 			 */
 			boolean fileCreated = f.createNewFile();
-
-			if(!fileCreated) {
-				throw new RemoteException("Le fichier " + nom + " existe deja");
+			resp.retval = fileCreated;
+			if(fileCreated){
+				resp.message = "File created successfully\n";
+			} else {
+				resp.message = "Could not create file\n";
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return resp;
 	}
 
 	@Override
