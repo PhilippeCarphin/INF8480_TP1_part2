@@ -6,6 +6,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.Response;
 
@@ -33,6 +40,8 @@ public class Client {
 	private Command command = null;
 	private String commandStr = null;
 	private String argument = null;
+	private static final String ID_FILENAME = "clientid.txt";
+	private int clientID = -1;
 
 	public Client(String distantServerHostname) {
 		super();
@@ -50,7 +59,8 @@ public class Client {
 
 	public void runTests()
 	{
-		testCreate(localServerStub);
+		// testCreate(localServerStub);
+		testCreateClientID();
 	}
 
 	public void testCreate(ServerInterface si)
@@ -59,6 +69,16 @@ public class Client {
 			si.create("fichier_test");
 		} catch (RemoteException e) {
 			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private void testCreateClientID()
+	{
+		try {
+			clientID = serverStub.createClientID();
+			getClientID();
+		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
@@ -152,6 +172,59 @@ public class Client {
 					System.exit(1);
 				}
 				break;
+		}
+	}
+
+	private void saveClientID(int clientID)
+	{
+
+	}
+
+	private void getClientID(){
+		File idFile = new File(ID_FILENAME);
+
+		if(idFile.exists()){
+			readIdFromFile();
+			System.out.println("Read ID " + String.valueOf(clientID) + " from file");
+		} else {
+			try {
+				clientID = serverStub.createClientID();
+			} catch ( IOException e){
+				e.printStackTrace();
+			}
+			System.out.println("Got ID " + String.valueOf(clientID) + "  from server");
+			// write ID to file
+			writeIdToFile();
+		}
+	}
+
+	private void writeIdToFile()
+	{
+		try {
+			FileWriter fw = new FileWriter(ID_FILENAME);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(String.valueOf(clientID));
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	private void readIdFromFile()
+	{
+		String idStr = null;
+		try {
+			FileReader fr = new FileReader(ID_FILENAME);
+			BufferedReader br = new BufferedReader(fr);
+			idStr = br.readLine();
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			clientID = Integer.parseInt(idStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
 		}
 	}
 }

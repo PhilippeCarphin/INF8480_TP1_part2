@@ -7,7 +7,7 @@ import ca.polymtl.inf8480.tp1.shared.Response;
 
 
 public interface ServerInterface extends Remote {
-	void createClientID() throws RemoteException;
+	int createClientID() throws RemoteException;
 	Response create(String nom) throws RemoteException;
 	String[] list() throws RemoteException;
 	SyncedFile[] syncLocalDirectory() throws RemoteException;

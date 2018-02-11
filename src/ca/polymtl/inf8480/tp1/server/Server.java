@@ -66,8 +66,8 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public void createClientID() throws RemoteException {
-		//
+	public int createClientID() throws RemoteException {
+		return -1;
 	}
 
 	@Override
