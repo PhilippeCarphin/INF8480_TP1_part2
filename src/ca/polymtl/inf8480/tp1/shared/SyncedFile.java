@@ -1,12 +1,15 @@
 package ca.polymtl.inf8480.tp1.shared;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.io.Serializable;
 import java.io.FileNotFoundException;
 
-public class SyncedFile
+public class SyncedFile implements Serializable
 {
 	private String name;
 	private byte[] content;
@@ -52,5 +55,19 @@ public class SyncedFile
 	public long getChecksum()
 	{
 		return this.checksum;
+	}
+
+	public void writeOnDisk(String path)
+	{
+		try
+		{
+			Path file = Paths.get(path);
+			Files.write(file, this.content);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return;
+		}
 	}
 }

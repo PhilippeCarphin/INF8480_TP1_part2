@@ -176,6 +176,10 @@ public class Server implements ServerInterface {
 				{
 					return new SyncedFile(filesPath + nom);
 				}
+				else
+				{
+					return null;
+				}
 			}
 		}
 

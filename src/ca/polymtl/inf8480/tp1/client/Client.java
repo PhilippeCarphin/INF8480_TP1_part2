@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
+import ca.polymtl.inf8480.tp1.shared.SyncedFile;
 import ca.polymtl.inf8480.tp1.shared.Response;
 
 public class Client {
@@ -92,6 +93,9 @@ public class Client {
 			case CREATE:
 				runCreate();
 				break;
+			case GET:
+				runGet();
+				break;
 			case LIST:
 				runList();
 				break;
@@ -130,6 +134,41 @@ public class Client {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}	
+	}
+
+	private void runGet()
+	{
+		try
+		{
+			Path currentPath = Paths.get("").toAbsolutePath();
+			File f = new File(currentPath + "/" + argument);
+			SyncedFile syncedFile;
+
+			if (f.exists())
+			{
+				long fileChecksum = f.lastModified();
+				syncedFile =  serverStub.get(argument, fileChecksum);
+			}
+			else
+			{
+				syncedFile =  serverStub.get(argument, 0);
+			}
+
+			if (syncedFile == null)
+			{
+				System.out.println("\nThe file you are trying to fetch is already up to date or does not exists on the server.\n");
+			}
+			else
+			{
+				System.out.println("\n" + argument + " fetched and is now at its newest version.\n");
+				syncedFile.writeOnDisk(f.getAbsolutePath());
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	private ServerInterface loadServerStub(String hostname) {
@@ -183,6 +222,11 @@ public class Client {
 		switch(command){
 			case CREATE:
 			case GET:
+				if( argument == null ){
+					System.out.println("Command " + commandStr + " requires an argument");
+					System.exit(1);
+				}
+			break;
 			case PUSH:
 			case LOCK:
 				if( argument == null ){
