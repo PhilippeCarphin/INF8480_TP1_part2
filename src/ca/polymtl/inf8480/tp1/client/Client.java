@@ -12,6 +12,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.Response;
@@ -66,18 +68,7 @@ public class Client {
 
 	public void testMethod(ServerInterface si)
 	{
-		try
-		{
-			String[] files = serverStub.list();
-			for (String s : files) {
-				System.out.println(s);
-			}
-		}
-		catch (RemoteException e)
-		{
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
+
 	}
 
 	public void testCreate(ServerInterface si)
@@ -101,6 +92,9 @@ public class Client {
 			case CREATE:
 				runCreate();
 				break;
+			case LIST:
+				runList();
+				break;
 			default:
 				System.out.println("Command " + commandStr + " not yet implemented");
 				System.exit(1);
@@ -117,6 +111,25 @@ public class Client {
 			e.printStackTrace();
 		}
 		System.out.println(resp.message);
+	}
+
+	private void runList()
+	{
+		try
+		{
+			String[] files = serverStub.list();
+
+			System.out.println("\nDistant files :\n");
+
+			for (String s : files) {
+				System.out.println(s);
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}	
 	}
 
 	private ServerInterface loadServerStub(String hostname) {
@@ -178,6 +191,10 @@ public class Client {
 				}
 				break;
 			case LIST:
+				if( argument != null ){
+					System.out.println("Command " + commandStr + " does not take any arguments");
+					System.exit(1);
+				}
 			case SYNC:
 				if( argument != null ){
 					System.out.println("Command " + commandStr + " does not take any arguments");

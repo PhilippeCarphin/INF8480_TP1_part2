@@ -143,10 +143,44 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public SyncedFile[] syncLocalDirectory() throws RemoteException  {return new SyncedFile[0];}
+	public SyncedFile[] syncLocalDirectory() throws RemoteException  
+	{
+		Path currentPath = Paths.get("").toAbsolutePath();
+		String filesPath = currentPath.toString() + "/ajpcfs/files/";
+		String[] filesNames = list();
+		SyncedFile[] syncedFiles = new SyncedFile[filesNames.length];
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			syncedFiles[i] = new SyncedFile(filesPath + filesNames[i]);
+		}
+
+		return syncedFiles;
+	}
 
 	@Override
-	public SyncedFile get(String nom, long checksum) throws RemoteException {return new SyncedFile("");}
+	public SyncedFile get(String nom, long checksum) throws RemoteException
+	{
+		Path currentPath = Paths.get("").toAbsolutePath();
+		String filesPath = currentPath.toString() + "/ajpcfs/files/";
+		String[] filesNames = list();
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			if (filesNames[i].equals(nom))	//On vérifie que le fichier demandé est present
+			{
+				File file = new File(filesPath + nom);
+				long srvChecksum = file.lastModified();
+
+				if (srvChecksum > checksum)	//on verifie si la version posedee par le serveur est la plus recente
+				{
+					return new SyncedFile(filesPath + nom);
+				}
+			}
+		}
+
+		return null;
+	}
 
 	@Override
 	public SyncedFile lock(String nom, int clientID, long checksum) throws RemoteException {return new SyncedFile("");}
