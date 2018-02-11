@@ -13,6 +13,14 @@ import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.SyncedFile;
 import ca.polymtl.inf8480.tp1.shared.Response;
 
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import java.io.FileReader;
+import java.io.BufferedReader;
+
 public class Server implements ServerInterface {
 
 	public static void main(String[] args) {
@@ -23,15 +31,23 @@ public class Server implements ServerInterface {
 	private static String FS_ROOT = "ajpcfs"; // Yet another new file system made by Alexandre Jouy and Philippe Carphin
 	private static String FILE_STORE = FS_ROOT + "/" + "files";
 	private static String LOCK_FILES = FS_ROOT + "/" + "lock";
+	private static final String ID_FILENAME = FS_ROOT + "/" + "idFile.txt";
 
+	private  ArrayList<Integer> idList = new ArrayList<Integer>(0);
 	private File fileStore = null;
 	private File lockFiles = null;
+	private File idFile = null;
 
 	private void createDirectories(){
 		fileStore.getParentFile().mkdir();
 		fileStore.mkdir();
 		lockFiles.getParentFile().mkdir();
 		lockFiles.mkdir();
+		try {
+			idFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Server() {
@@ -39,8 +55,15 @@ public class Server implements ServerInterface {
 
 		fileStore = new File(FILE_STORE);
 		lockFiles = new File(LOCK_FILES);
+		idFile = new File(ID_FILENAME);
+
 
 		createDirectories();
+		try {
+			readIDs();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	private void run() {
@@ -67,7 +90,10 @@ public class Server implements ServerInterface {
 
 	@Override
 	public int createClientID() throws RemoteException {
-		return -1;
+		int newID = getMaxId() + 1;
+		addId(newID);
+		showIds();
+		return newID;
 	}
 
 	@Override
@@ -110,4 +136,73 @@ public class Server implements ServerInterface {
 
 	@Override
 	public SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException {return new SyncedFile("");}
+
+	public void addId(int id)
+	{
+		BufferedWriter idWriter = null;
+		FileWriter idFile = null;
+		try {
+			// The true here says we're in append mode
+			idFile = new FileWriter(ID_FILENAME, true);
+			idWriter = new BufferedWriter(idFile);
+			idWriter.append(String.valueOf(id) + "\n");
+			idWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try{
+				idWriter.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		idList.add(id);
+	}
+
+	public void readIDs() throws IOException
+	{
+		FileReader fr = new FileReader(ID_FILENAME);
+		BufferedReader br = new BufferedReader(fr);
+		StringBuffer sb = new StringBuffer();
+		String line;
+		while( (line = br.readLine()) != null){
+			try
+			{
+				idList.add(Integer.parseInt(line));
+			}
+			catch (NumberFormatException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+
+	public boolean fileContainsID(Integer id)
+	{
+		boolean cont = idList.contains(id);
+		if(cont)
+			System.out.println("The id " + String.valueOf(id) + " is contained");
+		else
+			System.out.println("The id " + String.valueOf(id) + " is NOT contained");
+		return idList.contains(id);
+	}
+
+
+	public void showIds()
+	{
+		System.out.println("========= Client IDs =============");
+		for(Integer i : idList){
+			System.out.println("Id : " + String.valueOf(i));
+		}
+	}
+
+	public Integer getMaxId()
+	{
+		Integer max = -1;
+		if(idList.size() != 0){
+			max = Collections.max(idList);
+		}
+		return max;
+	}
 }

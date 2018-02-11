@@ -75,12 +75,7 @@ public class Client {
 
 	private void testCreateClientID()
 	{
-		try {
-			clientID = serverStub.createClientID();
-			getClientID();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		getClientID();
 	}
 
 	public void runCmd()
