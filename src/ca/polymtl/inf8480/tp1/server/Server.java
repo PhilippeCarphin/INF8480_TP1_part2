@@ -71,11 +71,11 @@ public class Server implements ServerInterface {
 	
 	@Override
 	public void create(String nom) throws RemoteException {
-		
+
 		try {
 
-			File f = new File(nom);
-			
+			File f = new File(FILE_STORE + "/" + nom);
+
 			/*
 			 * Cette fonction retourne false si le fichier existe deja.
 			 * L'operation est dite atomique du point de vue des systemes de fichiers.
