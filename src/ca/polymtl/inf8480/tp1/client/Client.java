@@ -24,25 +24,7 @@ public class Client {
 			client.runCmd();
 		}
 	}
-
 	private enum Command {CREATE, LIST, GET, SYNC, LOCK, PUSH}
-
-	public void runCmd(){
-		try {
-			switch(command){
-				case CREATE:
-					serverStub.create(argument);
-					break;
-				default:
-					System.out.println("Command " + commandStr + " not yet implemented");
-					System.exit(1);
-					break;
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private ServerInterface distantServerStub = null;
 	private ServerInterface localServerStub = null;
 	private ServerInterface serverStub = null;
@@ -65,15 +47,39 @@ public class Client {
 		}
 	}
 
-	public void runTests() {
+	public void runTests()
+	{
 		testCreate(localServerStub);
 	}
 
-	public void testCreate(ServerInterface si){
+	public void testCreate(ServerInterface si)
+	{
 		try {
 			si.create("fichier_test");
 		} catch (RemoteException e) {
 			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	public void runCmd()
+	{
+		switch(command){
+			case CREATE:
+				runCreate();
+				break;
+			default:
+				System.out.println("Command " + commandStr + " not yet implemented");
+				System.exit(1);
+				break;
+		}
+	}
+
+	private void runCreate()
+	{
+		try {
+			serverStub.create(argument);
+		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
@@ -144,6 +150,5 @@ public class Client {
 				}
 				break;
 		}
-
 	}
 }
