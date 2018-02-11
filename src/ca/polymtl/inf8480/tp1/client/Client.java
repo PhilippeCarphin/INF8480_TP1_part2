@@ -61,6 +61,23 @@ public class Client {
 	{
 		// testCreate(localServerStub);
 		testCreateClientID();
+		testMethod(localServerStub);
+	}
+
+	public void testMethod(ServerInterface si)
+	{
+		try
+		{
+			String[] files = serverStub.list();
+			for (String s : files) {
+				System.out.println(s);
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public void testCreate(ServerInterface si)

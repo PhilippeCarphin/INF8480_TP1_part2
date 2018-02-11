@@ -2,7 +2,8 @@ package ca.polymtl.inf8480.tp1.server;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,6 +12,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.SyncedFile;
+import sun.security.ssl.Debug;
 import ca.polymtl.inf8480.tp1.shared.Response;
 
 import java.io.FileWriter;
@@ -123,7 +125,22 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public String[] list() throws RemoteException {return new String [0];}
+	public String[] list() throws RemoteException 
+	{
+		Path currentPath = Paths.get("").toAbsolutePath();
+		String filesPath = currentPath.toString() + "/ajpcfs/files";
+		File filesFolder = new File(filesPath);
+
+		File[] allFiles = filesFolder.listFiles();
+		String[] filesNames = new String[allFiles.length];
+
+		for (int i = 0; i < allFiles.length; i++)
+		{
+			filesNames[i] = allFiles[i].getName();
+		}
+
+		return filesNames;
+	}
 
 	@Override
 	public SyncedFile[] syncLocalDirectory() throws RemoteException  {return new SyncedFile[0];}
