@@ -66,9 +66,9 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void createClientID() throws RemoteException {
-		// 
+		//
 	}
-	
+
 	@Override
 	public void create(String nom) throws RemoteException {
 

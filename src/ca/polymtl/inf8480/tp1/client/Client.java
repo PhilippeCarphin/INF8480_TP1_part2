@@ -16,7 +16,7 @@ public class Client {
 
 		if (args.length > 0)
 		{
-			distantHostname = args[0];		
+			distantHostname = args[0];
 		}
 		else
 		{
@@ -26,7 +26,7 @@ public class Client {
 
 		Client client = new Client(distantHostname);
 		client.runTests();
-		
+
 	}
 
 	private ServerInterface distantServerStub = null;
@@ -44,7 +44,7 @@ public class Client {
 
 		localServerStub = loadServerStub("127.0.0.1");
 	}
-	
+
 	public void runTests() {
 		testCreate(localServerStub);
 	}
