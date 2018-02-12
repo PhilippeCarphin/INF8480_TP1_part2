@@ -99,6 +99,9 @@ public class Client {
 			case LIST:
 				runList();
 				break;
+			case SYNC:
+				runSync();
+				break;
 			default:
 				System.out.println("Command " + commandStr + " not yet implemented");
 				System.exit(1);
@@ -171,6 +174,28 @@ public class Client {
 		}
 	}
 
+	private void runSync()
+	{
+		try
+		{
+			String[] files = serverStub.list();
+			Path currentPath = Paths.get("").toAbsolutePath();
+			SyncedFile syncedFile;
+
+			for (String s : files)
+			{
+				syncedFile =  serverStub.get(s, 0);
+				syncedFile.writeOnDisk(currentPath.toString() + "/" + s);
+				System.out.println(s + " synced.");
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}	
+	}
+
 	private ServerInterface loadServerStub(String hostname) {
 		ServerInterface stub = null;
 
@@ -200,10 +225,10 @@ public class Client {
 			command = Command.LIST;
 		} else if (commandStr.equals("get") ){
 			command = Command.GET;
-		} else if (commandStr.equals("syndLocalDirectory") ){
-			command = Command.LIST;
+		} else if (commandStr.equals("syncLocalDirectory") ){
+			command = Command.SYNC;
 		} else if (commandStr.equals("lock") ){
-			command = Command.LIST;
+			command = Command.LOCK;
 		} else if (commandStr.equals("push") ){
 			command = Command.LIST;
 		} else {
@@ -223,25 +248,25 @@ public class Client {
 			case CREATE:
 			case GET:
 				if( argument == null ){
-					System.out.println("Command " + commandStr + " requires an argument");
+					System.out.println("Command " + commandStr + " requires an argument.");
 					System.exit(1);
 				}
 			break;
 			case PUSH:
 			case LOCK:
 				if( argument == null ){
-					System.out.println("Command " + commandStr + " requires an argument");
+					System.out.println("Command " + commandStr + " requires an argument.");
 					System.exit(1);
 				}
 				break;
 			case LIST:
 				if( argument != null ){
-					System.out.println("Command " + commandStr + " does not take any arguments");
+					System.out.println("Command " + commandStr + " does not take any arguments.");
 					System.exit(1);
 				}
 			case SYNC:
 				if( argument != null ){
-					System.out.println("Command " + commandStr + " does not take any arguments");
+					System.out.println("Command " + commandStr + " does not take any arguments.");
 					System.exit(1);
 				}
 				break;
