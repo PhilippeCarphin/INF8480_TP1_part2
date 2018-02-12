@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.SyncedFile;
 import ca.polymtl.inf8480.tp1.shared.Response;
+import ca.polymtl.inf8480.tp1.shared.Lock;
 
 public class Client {
 
@@ -101,6 +102,9 @@ public class Client {
 				break;
 			case SYNC:
 				runSync();
+				break;
+			case LOCK:
+				runLock();
 				break;
 			default:
 				System.out.println("Command " + commandStr + " not yet implemented");
@@ -187,6 +191,70 @@ public class Client {
 				syncedFile =  serverStub.get(s, 0);
 				syncedFile.writeOnDisk(currentPath.toString() + "/" + s);
 				System.out.println(s + " synced.");
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}	
+	}
+
+	private void runLock()
+	{
+		try
+		{
+			Path currentPath = Paths.get("").toAbsolutePath();
+			File f = new File(currentPath + "/" + argument);
+			File idFile = new File(currentPath + "/" + ID_FILENAME);
+			Lock lock;
+			SyncedFile syncedFile;
+
+
+			if (idFile.exists())
+			{
+				readIdFromFile();
+			}
+			else
+			{
+				System.out.println("\nYou first need to get an ID from the server to be able to lock a file.\n");
+				return;
+			}
+
+			if (f.exists())
+			{
+				long fileChecksum = f.lastModified();
+				lock =  serverStub.lock(argument, clientID, fileChecksum);
+			}
+			else
+			{
+				lock =  serverStub.lock(argument, clientID, 0);
+			}
+
+			if (lock == null)
+			{
+				System.out.println("\nAn error occured or the file requested does not exist.\n");
+			}
+			else
+			{
+				syncedFile = lock.getSyncedFile();
+
+				if (syncedFile == null)
+				{
+					if (clientID == lock.getLockID())
+					{
+						System.out.println("\nYou locked the file " + argument + " and you already own the newest version.\n");
+					}
+					else
+					{
+						System.out.println("\nThe file " + argument + " is already locked by the client " + String.valueOf(lock.getLockID()) + ".\n");
+					}
+				}
+				else
+				{
+					syncedFile.writeOnDisk(f.getAbsolutePath());
+					System.out.println("\nYou locked the file " + argument + " and fetched the latest version.\n");
+				}
 			}
 		}
 		catch (RemoteException e)

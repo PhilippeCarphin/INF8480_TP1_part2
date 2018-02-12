@@ -4,6 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import ca.polymtl.inf8480.tp1.shared.Response;
+import ca.polymtl.inf8480.tp1.shared.Lock;
 
 
 public interface ServerInterface extends Remote {
@@ -12,6 +13,6 @@ public interface ServerInterface extends Remote {
 	String[] list() throws RemoteException;
 	SyncedFile[] syncLocalDirectory() throws RemoteException;
 	SyncedFile get(String nom, long checksum) throws RemoteException;
-	SyncedFile lock(String nom, int clientID, long checksum) throws RemoteException;
+	Lock lock(String nom, int clientID, long checksum) throws RemoteException;
 	SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException;
 }

@@ -1,9 +1,14 @@
 package ca.polymtl.inf8480.tp1.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -12,6 +17,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import ca.polymtl.inf8480.tp1.shared.ServerInterface;
 import ca.polymtl.inf8480.tp1.shared.SyncedFile;
+import ca.polymtl.inf8480.tp1.shared.Lock;
 import sun.security.ssl.Debug;
 import ca.polymtl.inf8480.tp1.shared.Response;
 
@@ -187,7 +193,112 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public SyncedFile lock(String nom, int clientID, long checksum) throws RemoteException {return new SyncedFile("");}
+	public Lock lock(String nom, int clientID, long checksum) throws RemoteException
+	{
+		String[] filesNames = list();
+
+		Path currentPath = Paths.get("").toAbsolutePath();
+		String lockPath = currentPath.toString() + "/ajpcfs/lock";
+		File lockFolder = new File(lockPath);
+
+		File[] allLocks = lockFolder.listFiles();
+
+		for (String s : filesNames)	//On verifie que le fichier existe
+		{
+			if (nom.equals(s))
+			{
+				if (allLocks.length == 0)
+				{
+					try
+					{
+						PrintWriter writer = new PrintWriter(lockPath + "/" + s, "UTF-8");
+						writer.println(clientID);
+						writer.close();
+
+						Lock lock = new Lock(clientID);
+
+						File file = new File(currentPath.toString() + "/ajpcfs/files/" + s);
+						long srvChecksum = file.lastModified();
+		
+						if (srvChecksum > checksum)	//on verifie si la version posedee par le serveur est la plus recente
+						{
+							lock.setSyncedFile(currentPath.toString() + "/ajpcfs/files/" + s);	//Si oui on envoie egalement le fichier
+						}
+
+						return lock;
+					}
+					catch (FileNotFoundException e)
+					{
+						e.printStackTrace();
+						return null;
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						e.printStackTrace();
+						return null;
+					}
+				}
+				else
+				{
+					for (File f : allLocks) //On verifie si le lock existe deja
+					{
+						if (f.getName().equals(s))	//Si oui
+						{
+							String idStr = null;
+
+							try
+							{
+								FileReader fr = new FileReader(lockPath + "/" + s);
+								BufferedReader br = new BufferedReader(fr);
+								idStr = br.readLine();
+								br.close();
+
+								return new Lock(Integer.parseInt(idStr));	//On ne retourne que l id
+							}
+							catch (IOException e)
+							{
+								e.printStackTrace();
+								return null;
+							}
+						}
+						else	//Sinon on le cree
+						{
+							try
+							{
+								System.out.println("Creating lock");
+								PrintWriter writer = new PrintWriter(lockPath + "/" + s, "UTF-8");
+								writer.println(clientID);
+								writer.close();
+
+								Lock lock = new Lock(clientID);
+
+								File file = new File(currentPath.toString() + "/ajpcfs/files/" + s);
+								long srvChecksum = file.lastModified();
+				
+								if (srvChecksum > checksum)	//on verifie si la version posedee par le serveur est la plus recente
+								{
+									lock.setSyncedFile(currentPath.toString() + "/ajpcfs/files/" + s);	//Si oui on envoie egalement le fichier
+								}
+
+								return lock;
+							}
+							catch (FileNotFoundException e)
+							{
+								e.printStackTrace();
+								return null;
+							}
+							catch (UnsupportedEncodingException e)
+							{
+								e.printStackTrace();
+								return null;
+							}
+						}
+					}
+				}
+			}	
+		}
+		return null;
+	}
 
 	@Override
 	public SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException {return new SyncedFile("");}
