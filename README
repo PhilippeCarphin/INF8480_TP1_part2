@@ -1,0 +1,24 @@
+========== Partie serveur ==========
+
+**** Usage ****
+
+Pour lancer le serveur il faut préalablement lancer la commande rmiregistry depuis le dossier bin.
+
+Le serveur se lance alors avec la commande ./server. /!\ Cette commande doit impérativement être lancer depuis le dossier INF8480_TP1_part2
+sinon les chemins d'accès aux fichiers ne seront pas corrects.
+
+**** Architecture ****
+
+Tous les fichiers sont stockés dans le dossier ./ajpcfs/files
+Tous les verrous sont stockés dans le dossier ./ajpcfs/lock
+
+
+========== Partie client ==========
+
+**** Usage ****
+
+Pour lancer le client la commande est la suivante :
+
+./client ipserver commande [argument]
+
+Elle peut être lancée depuis n'importe quel dossier, tous les fichiers transférés seront cependant stockés dans le dossier courant.
