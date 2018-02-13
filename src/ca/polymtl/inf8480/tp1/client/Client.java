@@ -106,8 +106,11 @@ public class Client {
 			case LOCK:
 				runLock();
 				break;
+			case PUSH:
+				runPush();
+				break;
 			default:
-				System.out.println("Command " + commandStr + " not yet implemented");
+				System.out.println("Command " + commandStr + " not yet implemented.");
 				System.exit(1);
 				break;
 		}
@@ -264,6 +267,46 @@ public class Client {
 		}	
 	}
 
+	private void runPush()
+	{
+		Path currentPath = Paths.get("").toAbsolutePath();
+		File idFile = new File(currentPath + "/" + ID_FILENAME);
+		SyncedFile syncedFile = new SyncedFile(currentPath + "/" + argument);
+
+
+		if (idFile.exists())
+		{
+			readIdFromFile();
+		}
+		else
+		{
+			System.out.println("\nYou first need to get an ID from the server to be able to push a file.\n");
+			return;
+		}
+
+		try
+		{
+			boolean ack = serverStub.push(argument, syncedFile.getContent(), clientID);
+
+			if (ack == true)
+			{
+				System.out.println("\n" + argument + " has been pushed to the serveur.\n");
+			}
+			else
+			{
+				System.out.println("\n" + argument + " can't be pushed to the serveur.");
+				System.out.println("Either you didn't lock it first, do not own the lock or an error has occured.\n");
+			}
+		}
+		catch (RemoteException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}	
+
+
+	}
+
 	private ServerInterface loadServerStub(String hostname) {
 		ServerInterface stub = null;
 
@@ -298,7 +341,7 @@ public class Client {
 		} else if (commandStr.equals("lock") ){
 			command = Command.LOCK;
 		} else if (commandStr.equals("push") ){
-			command = Command.LIST;
+			command = Command.PUSH;
 		} else {
 			System.out.print("You need to use one of the following parameters :"
 					+ "\n-\tlist\n-\tcreate\n-\tlock\n-\tget\n-\tsyncLocalDirectory\n");
@@ -314,13 +357,23 @@ public class Client {
 		// Check if command takes arguments
 		switch(command){
 			case CREATE:
+				if( argument == null ){
+					System.out.println("Command " + commandStr + " requires an argument.");
+					System.exit(1);
+				}
+				break;
 			case GET:
 				if( argument == null ){
 					System.out.println("Command " + commandStr + " requires an argument.");
 					System.exit(1);
 				}
-			break;
+				break;
 			case PUSH:
+				if( argument == null ){
+					System.out.println("Command " + commandStr + " requires an argument.");
+					System.exit(1);
+				}
+				break;
 			case LOCK:
 				if( argument == null ){
 					System.out.println("Command " + commandStr + " requires an argument.");

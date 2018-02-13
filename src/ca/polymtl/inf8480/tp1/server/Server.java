@@ -135,7 +135,11 @@ public class Server implements ServerInterface {
 	{
 		Path currentPath = Paths.get("").toAbsolutePath();
 		String filesPath = currentPath.toString() + "/ajpcfs/files";
+		String lockPath = currentPath.toString() + "/ajpcfs/lock";
 		File filesFolder = new File(filesPath);
+
+		File lockFolder = new File(lockPath);
+		File[] allLocks = lockFolder.listFiles();
 
 		File[] allFiles = filesFolder.listFiles();
 		String[] filesNames = new String[allFiles.length];
@@ -143,6 +147,27 @@ public class Server implements ServerInterface {
 		for (int i = 0; i < allFiles.length; i++)
 		{
 			filesNames[i] = allFiles[i].getName();
+
+			for (File f : allLocks)
+			{
+				if (f.getName().equals(filesNames[i]))
+				{
+					try
+					{
+						String idStr;
+						FileReader fr = new FileReader(lockPath + "/" + f.getName());
+						BufferedReader br = new BufferedReader(fr);
+						idStr = br.readLine();
+						br.close();
+
+						filesNames[i] = filesNames[i] + " (locked by client " + idStr + ")";
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 
 		return filesNames;
@@ -154,6 +179,12 @@ public class Server implements ServerInterface {
 		Path currentPath = Paths.get("").toAbsolutePath();
 		String filesPath = currentPath.toString() + "/ajpcfs/files/";
 		String[] filesNames = list();
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			filesNames[i] = filesNames[i].split(" ")[0];	
+		}
+
 		SyncedFile[] syncedFiles = new SyncedFile[filesNames.length];
 
 		for (int i = 0; i < filesNames.length; i++)
@@ -170,6 +201,11 @@ public class Server implements ServerInterface {
 		Path currentPath = Paths.get("").toAbsolutePath();
 		String filesPath = currentPath.toString() + "/ajpcfs/files/";
 		String[] filesNames = list();
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			filesNames[i] = filesNames[i].split(" ")[0];	
+		}
 
 		for (int i = 0; i < filesNames.length; i++)
 		{
@@ -196,6 +232,11 @@ public class Server implements ServerInterface {
 	public Lock lock(String nom, int clientID, long checksum) throws RemoteException
 	{
 		String[] filesNames = list();
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			filesNames[i] = filesNames[i].split(" ")[0];	
+		}
 
 		Path currentPath = Paths.get("").toAbsolutePath();
 		String lockPath = currentPath.toString() + "/ajpcfs/lock";
@@ -301,7 +342,69 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException {return new SyncedFile("");}
+	public boolean push(String nom, byte[] contenu, int clientID) throws RemoteException 
+	{
+		Path currentPath = Paths.get("").toAbsolutePath();
+		String filesPath = currentPath.toString() + "/ajpcfs/files/";
+		String lockPath = currentPath.toString() + "/ajpcfs/lock";
+		File lockFolder = new File(lockPath);
+		File[] allLocks = lockFolder.listFiles();
+		String[] filesNames = list();
+
+		for (int i = 0; i < filesNames.length; i++)
+		{
+			filesNames[i] = filesNames[i].split(" ")[0];	
+		}
+
+		for (File f : allLocks) //On verifie si le lock existe deja
+		{
+			if (f.getName().equals(nom))	//Si oui
+			{
+				String idStr = null;
+
+				try
+				{
+					FileReader fr = new FileReader(lockPath + "/" + nom);
+					BufferedReader br = new BufferedReader(fr);
+					idStr = br.readLine();
+					br.close();
+
+					if (Integer.parseInt(idStr) == clientID)
+					{
+						SyncedFile pushedFile = new SyncedFile(nom, contenu);
+						pushedFile.writeOnDisk(filesPath + nom);
+
+						f.delete();	//On detruit le verrou apres ecriture du nouveau fichier
+
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					return false;
+				}
+			}
+		}
+
+		for (String s : filesNames)	//Si il n y a aucun verrou on verifie si le fichier est deja sur le server
+		{
+			if (s.equals(nom))
+			{	
+				return false;
+			}
+		}
+
+		//Si ce n est pas le cas on l ecrit quand même
+		SyncedFile pushedFile = new SyncedFile(nom, contenu);
+		pushedFile.writeOnDisk(filesPath + nom);
+
+		return true;
+	}
 
 	public void addId(int id)
 	{

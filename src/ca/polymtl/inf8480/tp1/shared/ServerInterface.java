@@ -14,5 +14,5 @@ public interface ServerInterface extends Remote {
 	SyncedFile[] syncLocalDirectory() throws RemoteException;
 	SyncedFile get(String nom, long checksum) throws RemoteException;
 	Lock lock(String nom, int clientID, long checksum) throws RemoteException;
-	SyncedFile push(String nom, byte[] contenu, int clientID) throws RemoteException;
+	boolean push(String nom, byte[] contenu, int clientID) throws RemoteException;
 }

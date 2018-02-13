@@ -42,6 +42,12 @@ public class SyncedFile implements Serializable
 		}
 	}
 
+	public SyncedFile(String name, byte[] content)
+	{
+		this.name = name;
+		this.content = content;
+	}
+
 	public byte[] getContent()
 	{
 		return this.content;
