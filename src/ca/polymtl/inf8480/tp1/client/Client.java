@@ -23,15 +23,16 @@ import ca.polymtl.inf8480.tp1.shared.Lock;
 public class Client {
 
 	public static void main(String[] args) {
-		String distantHostname = null;
-
-		Client client = new Client(distantHostname);
-		if( args.length == 0 )
+		if( args.length <= 1 )
 		{
-			client.runTests();
+			//client.runTests();
+			System.out.println("\nUsage : client hostname command [arg]\n");
 		}
 		else
 		{
+			String distantHostname = args[0];
+			Client client = new Client(distantHostname);
+
 			client.parseArgs(args);
 			client.runCmd();
 		}
@@ -40,7 +41,7 @@ public class Client {
 	private ServerInterface distantServerStub = null;
 	private ServerInterface localServerStub = null;
 	private ServerInterface serverStub = null;
-	private static final boolean USE_DISTANT_SERVER = false;
+	private static final boolean USE_DISTANT_SERVER = true;
 	private Command command = null;
 	private String commandStr = null;
 	private String argument = null;
@@ -52,7 +53,7 @@ public class Client {
 		if( USE_DISTANT_SERVER ){
 			if (distantServerHostname != null) {
 				distantServerStub = loadServerStub(distantServerHostname);
-				System.out.println("called loadServerStub with hostname " + distantServerHostname);
+				System.out.println("Called loadServerStub with hostname " + distantServerHostname + "\n");
 			}
 			serverStub = distantServerStub;
 		} else {
@@ -328,7 +329,7 @@ public class Client {
 	}
 
 	public void parseArgs(String[] args){
-		commandStr = args[0];
+		commandStr = args[1];
 
 		if( commandStr.equals("create") ){
 			command = Command.CREATE;
@@ -348,8 +349,8 @@ public class Client {
 			System.exit(1);
 		}
 
-		if(args.length > 1)
-			argument = args[1];
+		if(args.length > 2)
+			argument = args[2];
 		validateArgs();
 	}
 
